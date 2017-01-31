@@ -1,1 +1,3 @@
 # jCiup2
+
+file transfer/sharing utility. Back in 2007 we didn't have "social networks"... 
