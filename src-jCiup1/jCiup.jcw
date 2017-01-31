@@ -1,0 +1,16 @@
+<?xml?>
+<workspace>
+	<settings>
+		<label>jCiup</label>
+	</settings>
+	<users>
+		<user>
+			<path>jCiup.jcu</path>
+		</user>
+	</users>
+	<projects>
+		<project>
+			<path>jCiup.jcp</path>
+		</project>
+	</projects>
+</workspace>

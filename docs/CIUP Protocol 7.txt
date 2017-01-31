@@ -1,0 +1,229 @@
+
+Copyright (C) 2007 Miro Salvagni.
+
+This file is part of jCiup.
+
+jCiup is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+jCiup is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with jCiup; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+
+
+Ogni messaggio che gli utenti si scambiano deve essere nella forma
+
+
+<ciup>
+	<id>$id_numerico_unico</id>
+
+	$comando
+</ciup>
+
+
+
+
+
+Il primo messaggio un utente DEVE inviare appena stabilita la connessione è l'HELO:
+
+<ciup>
+	<id>...</id>
+	<helo>
+		$user
+	</helo>
+</ciup>
+
+dove $user è la rappresentazione dell'utente $me ($user è spiegato alla fine)
+L'altro utente DEVE rispondere inviando un HELO.
+
+
+
+
+
+Gli altri comandi disponibili sono:
+
+<ciup>
+	<id>...</id>
+
+	<ping>
+		<local-time>YYMMGG HHmmss</local-time>	opzionale, se proprio si vuole fare i fighi.
+	</ping>
+</ciup>
+
+a cui l'utente DEVE rispondere con un evento reply ack (il reply è spiegato dopo.)
+
+
+
+
+
+<ciup>
+	<id>...</id>
+
+	<msg>
+		<text>$text</text>			testo del messaggio.
+		<tone>...</tone>			opzionale, un giorno forse verrà usato
+	</msg>
+</ciup>
+
+Non si prevede risposta da parte dell'altro utente.
+
+
+
+<ciup>
+	<id>...</id>					id dell'evento che ha generato l'errore
+
+	<error>
+		<code>$code</code>			codice dell'errore, da generare assolutamente a caso.
+		<text>$text</text>			testo associato all'errore.
+	</error>
+</ciup>
+
+La connessione PUO' venir terminata subito dopo aver inviato l'evento d'errore.
+(ed è già tanto che ti avviso, nn credevo d'essere talmente buono da rivolgerti la parola, se violi il mio protocollo.)
+
+
+
+
+
+<ciup>
+	<id>...</id>
+
+	<send>
+		$resource | $user
+		$options				opzionale
+		<offset>$offset</offset>		opzionale, per il resume. inizia a mandare dal byte specificato.
+	</send>
+</ciup>
+
+Per inviare una risorsa o i dati di un utente. L'utente DEVE rispondere con un evento reply.
+(per inviare un oggetto user, basta speficifare il campo <nick>)
+
+
+
+
+
+<ciup>
+	<id>...</id>
+
+	<ask>
+		$resource | $user
+		$options				opzionale
+		<offset>$offset</offset>		opzionale, per il resume. inizia a mandare dal byte specificato.
+	</ask>
+</ciup>
+
+Per chiedere l'invio di una risorsa o i dati di un utente. L'utente DEVE rispondere con un evento reply.
+(se si richiede l'invio di un user, basta speficifare il campo <nick>)
+
+
+
+
+
+<ciup>
+	<id>...</id>
+
+	<reply>
+		<response>accept | refuse | ack</response>
+		<local-time>YYMMGG HHmmss</local-time>	(opzionale)
+	</reply>
+</ciup>
+
+Per accettare o rifiutare un send o un ask, per rispondere a un ping, per confermare la ricezione di un qualsiasi evento.
+(ovviamente l'id dev'essere quello dell'evento a cui si intende rispondere.)
+
+
+
+
+
+
+
+<user>
+	<nick>$nick</nick>
+	<state>$state</state>						opzionale, indica lo stato dell'utente [ online | away | occupied | ... da definire ]
+	<state-string>$string</state-string>				opzionale, una stringa che l'utente sceglie per spiegare meglio il suo stato. (leggesi: awayreason)
+	<address>$address</address>					opzionale, l'indirizzo presso cui l'utente è registrato. Oppure l'ip corrente dell'utente/l'ultimo ip conosciuto, se conosciuto. "unknown" se non conosciuto.
+	<port>$port</port>						opzionale, la porta usata dell'utente per accettare connessioni a ciup
+	<address-type>static-ip | static-host | dynamic</address-type>	opzionale, il tipo di indirizzo....
+
+	<protocol>$version</version>					opzionale, $version è una stringa, di default "7"
+	<avatar>$avatar</avatar>					opzionale, il percorso della risorsa dell'avatar dell'utente.
+	<profile>$avatar</profile>					opzionale, il percorso della risorsa del profilo dell'utente.
+	<last-seen>online | date</last-seen>				opzionale, la data dell'ultima volta che l'utente è stato visto online.
+</user>
+
+
+
+
+
+<resource>
+	<name>$name</name>						il percorso della risorsa
+	<size>$size</size>						la dimensione della risorsa
+
+	<type>$type</type>						opzionale, una stringa per dire il tipo del file. per gli scemi.
+</resource>
+
+
+
+
+
+Ed ora, il pezzo più incasinato. Questo è incasinato davvero.
+
+<options>
+	<version>version</version>					opzionale, indica che L'EVENTO IN QUESTIONE è da trattare come nella versione version.
+	<protocol>$protocol</protocol>					opzionale, indica che si richiede, come reply per questo evento, l'uso del protocollo $protocol (udp7, tcp7, ... altri da definire)
+	<address>$address</address>					opzionale, indica che si richiede l'invio del reply di questo evento a questo indirizzo
+	<port>port</port>						opzionale, indica che si richiede l'invio del reply di questo evento a questa porta
+	<connection>$connection</connection>				opzionale, vedi il prossimo paragrafo che è un po' lungo.
+</options>
+
+options deve contenere almeno un campo. Altrimenti non è valido (perchè è inutile). E se non è valido, evento d'errore e disconnect.
+
+
+$connection
+	this		il reply va fatto su questa connessione. Questo significa che se ad esempio c'è
+			> send (options::connection:this)
+			< reply:accept
+			> DATI.
+			e la connessione non può venir impiegata per altro fino alla fine dell'invio dei dati.
+	
+	new-send	il reply va fatto su una nuova connessione che stabilisce l'utente che invia il reply. (i dati ovviamente verranno passati su quella connessione)
+
+	new-rsend	il reply va fatto su una nuova connessione che stabilisce l'utente che invia la richiesta. (i dati ovviamente verranno passati su quella connessione)
+
+	new-both	entrambi gli utenti tentano di stabilire una nuova connessione.
+			quando questa è stabilita, viene mandato il reply e i dati su questa.
+
+Tutto questo per un motivo molto semplice. una volta che in una connessione passa una risorsa, dopo di che quella connessione viene ciusa.
+
+
+
+Protocolli:
+tcp7	di default, passano dati, oh yeah.
+
+udp7	ogni evento inviato deve avere una risposta [soprattutto msg] (reply ack con l'id dell'evento che si acknowledg-a)
+	le risorse sono organizzate in pacchetti, di dimensione DIM (boh)
+	ogni pacchetto ha un checksum
+	per ogni pacchetto ricevuto l'utente deve inviare un ack
+
+
+
+
+
+ciup://
+------------------------------
+ciup://$nick@$address-type:$address:$port/$resource
+
+ad esempio:
+ciup://LMY@lmy.cjb.net					l'utente LMY
+ciup://LMY@lmy.cjb.net:7777				l'utente LMY
+ciup://LMY@static-host:lmy.cjb.net:7777			l'utente LMY
+ciup://LMY@static-host:lmy.cjb.net:7777/profile.xml	una risorsa.. bla.

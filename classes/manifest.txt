@@ -1,0 +1,2 @@
+Main-Class: JCiup2
+Class-Path: systray4j.jar
